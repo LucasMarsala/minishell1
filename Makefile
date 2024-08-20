@@ -3,11 +3,9 @@ NAME = minishell1
 GREEN	=	\033[32;1m
 CYAN = \033[36m
 
-WFLAGS = -Wall -Wextra -Werror -Wpedantic
+WFLAGS = -Wall -Wextra -Werror -Wpedantic -Wuninitialized -Wshadow
 
-CFLAGS = -std=c99 -g
-
-CC = gcc
+CFLAGS = -std=c99 -g -I./include
 
 PATH_FILES = ./src/
 
@@ -28,9 +26,9 @@ clean:
 	$(RM) $(OBJ)
 	@printf "$(CYAN)[$(NAME)] - All .o files have been deleted\n" $<
 
-fclean:
-	$(RM) $(OBJ)
+fclean: clean
 	$(RM) *~ *#
+	$(RM) $(PATH_FILES)*~ $(PATH_FILES)*#
 	$(RM) $(NAME)
 	@printf "$(CYAN)[$(NAME)] - All useless files have been deleted including .o, # and ~ files.\n" $<
 
