@@ -1,9 +1,9 @@
 #include "my_header.h"
 
-void free_env(char **my_env) {
-  for (size_t i = 0; NULL != my_env[i]; ++i)
-    free(my_env[i]);
-  free(my_env);
+void free_array(char **array) {
+  for (size_t i = 0; NULL != array[i]; ++i)
+    free(array[i]);
+  free(array);
 }
 
 static size_t get_size_env(char **env) {

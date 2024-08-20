@@ -1,6 +1,5 @@
 #include "my_header.h"
 
-
 static void display_prompt(void) {
   char pwd[PATH_MAX];
   char *token = NULL;
@@ -41,6 +40,6 @@ int main(int ac, char **av, char **env) {
   }
   if (line)
     free(line);
-  free_env(my_env);
+  free_array(my_env);
   return (0);
 }
