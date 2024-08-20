@@ -1,5 +1,6 @@
 #include "my_header.h"
 
+
 static void display_prompt(void) {
   char pwd[PATH_MAX];
   char *token = NULL;
@@ -16,20 +17,30 @@ static void display_prompt(void) {
     printf(GREEN "->" ORANGE "✗ " RESET);
 }
 
-int main (int ac, char **av, char **env) {
+void print_env(char **env) {
+  for (int i = 0; env[i] != NULL; ++i)
+    printf("%s\n", env[i]);
+  printf("\n\n\n");
+}
+
+int main(int ac, char **av, char **env) {
   char *line = NULL;
   ssize_t getline_value = 0;
   size_t len = 0;
+  char **my_env = copy_env(env);
 
+  if (my_env == NULL)
+    return (-1);
   while (getline_value != EOF) {
     if (isatty(STDIN_FILENO)) {
       display_prompt();
       fflush(stdout);
     }
     getline_value = getline(&line, &len, stdin);
-    printf("%s", line);
+    check_commands(line, my_env);
   }
   if (line)
     free(line);
+  free_env(my_env);
   return (0);
 }

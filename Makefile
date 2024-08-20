@@ -10,6 +10,9 @@ CFLAGS = -std=c99 -g -I./include
 PATH_FILES = ./src/
 
 SRCS = main.c	\
+			 env.c	\
+			 utils.c	\
+			 commands.c	\
 
 SRC = $(addprefix $(PATH_FILES), $(SRCS))
 

@@ -3,3 +3,4 @@
 *~
 *.o
 minishell1
+.env
