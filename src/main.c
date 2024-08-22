@@ -1,6 +1,28 @@
 #include "my_header.h"
 
-static void display_prompt(void) {
+static void display_wrong_prompt(env_t *my_env) {
+  write(1, BLUE, 6);
+  write(1, my_env->user, my_strlen(my_env->user));
+  write(1, GREEN, 8);
+  write(1, " -> ", 4);
+  write(1, ORANGE, 12);
+  write(1, " ✗", 4);
+  write(1, RESET " ", 5);
+}
+
+static void display_right_prompt(env_t *my_env, char *path) {
+  write(1, BLUE, 6);
+  write(1, my_env->user, my_strlen(my_env->user));
+  write(1, GREEN, 8);
+  write(1, " -> ", 4);
+  write(1, LIGHT_BLUE, 6);
+  write(1, path, my_strlen(path));
+  write(1, ORANGE, 12);
+  write(1, " ✗", 4);
+  write(1, RESET " ", 5);
+}
+
+static void get_prompt(env_t *my_env) {
   char pwd[PATH_MAX];
   char *token = NULL;
   char *path = NULL;
@@ -11,35 +33,36 @@ static void display_prompt(void) {
       path = token;
       token = strtok(NULL, "/");
     }
-    printf(GREEN "->" LIGHT_BLUE " %s " ORANGE "✗ " RESET, path);
+    display_right_prompt(my_env, path);
   } else
-    printf(GREEN "->" ORANGE "✗ " RESET);
+    display_wrong_prompt(my_env);
 }
 
-void print_env(char **env) {
-  for (int i = 0; env[i] != NULL; ++i)
-    printf("%s\n", env[i]);
-  printf("\n\n\n");
+void get_shell_input(env_t *my_env, user_input_t *usr_input, char **env) {
+  signal(SIGINT, SIG_IGN);
+  while (usr_input->getline_value != EOF) {
+    if (isatty(STDIN_FILENO)) {
+      get_prompt(my_env);
+      fflush(stdout);
+    }
+    usr_input->getline_value = getline(&usr_input->line, &usr_input->len, stdin);
+    if (usr_input->getline_value != EOF) {
+      usr_input->line[usr_input->getline_value - 1] = '\0';
+      check_commands(my_env, usr_input, env);
+    }
+  }
 }
 
 int main(int ac, char **av, char **env) {
-  char *line = NULL;
-  ssize_t getline_value = 0;
-  size_t len = 0;
-  char **my_env = copy_env(env);
+  env_t *my_env = (env_t *)malloc(sizeof(env_t));
+  user_input_t *usr_input = (user_input_t *)malloc(sizeof(user_input_t));
 
-  if (my_env == NULL)
+  if (my_env == NULL || usr_input == NULL) {
+    write(2, "Error: Could not allocate memory for structures.", 48);
     return (-1);
-  while (getline_value != EOF) {
-    if (isatty(STDIN_FILENO)) {
-      display_prompt();
-      fflush(stdout);
-    }
-    getline_value = getline(&line, &len, stdin);
-    check_commands(line, my_env);
   }
-  if (line)
-    free(line);
-  free_array(my_env);
+  initialize_shell(my_env, usr_input);
+  get_shell_input(my_env, usr_input, env);
+  free_shell(my_env, usr_input);
   return (0);
 }

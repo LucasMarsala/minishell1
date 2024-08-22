@@ -13,6 +13,9 @@ SRCS = main.c	\
 			 env.c	\
 			 utils.c	\
 			 commands.c	\
+			 initialization.c	\
+			 free.c	\
+			 str_to_word_array.c 	\
 
 SRC = $(addprefix $(PATH_FILES), $(SRCS))
 

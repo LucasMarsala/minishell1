@@ -1,64 +1,61 @@
 #include "my_header.h"
 
-static size_t count_commands(char *str) {
-  size_t i = 0;
-  char *token = NULL;
-
-  token = strtok(str, " ");
-  while (token != NULL) {
-    token = strtok(NULL, " ");
-    ++i;
-  }
-  return (i);
+static void display_command_not_found(const char *str) {
+  write(2, BLUE "minishell1: " RED "command not found: ", 44);
+  write(2, str, my_strlen(str));
+  write(2, RED, 6);
+  write(2, RESET "\n", 6);
 }
 
-static char *get_path_exec(char **env) {
-  for (size_t i = 0; NULL != env[i]; ++i)
-    if (my_strstr(env[i], "PATH=") == 0 && env[i][0] == 'P')
-      return (env[i]);
+static int exec_commands(env_t *my_env, char **commands_array, char *path) {
+  pid_t pid;
+  static char *newenviron[] = { NULL };
+
+  pid = fork();
+  if (pid < 0) {
+    perror("Fork failed.");
+    exit(EXIT_FAILURE);
+  } else if (pid == 0) {
+    execve(path, commands_array, newenviron);
+    exit(EXIT_SUCCESS);
+  } else {
+    wait(NULL);
+  }
+  return 0;
+}
+
+static char *check_commands_with_env(env_t *my_env, char **env, char **commands) {
+  char *str = NULL;
+  size_t len = 0;
+
+  if (commands == NULL)
+    return (NULL);
+  for (size_t i = 0; NULL != my_env->path[i]; ++i) {
+    str = my_strcat(my_env->path[i], commands[0]);
+    if (str == NULL)
+      return (NULL);
+    if (access(str, F_OK) == 0) {
+      return (str);
+    } else if (access(commands[0], F_OK) == 0) {
+      free(str);
+      return (my_strdup(commands[0]));
+    }
+    free(str);
+  }
   return (NULL);
 }
 
-static size_t count_pathname(char *str) {
-  char *token = NULL;
-  size_t i = 0;
+void check_commands(env_t *my_env, user_input_t *usr_input, char **env) {
+  char **commands_array = str_to_word_array(usr_input->line);
+  char *path = check_commands_with_env(my_env, env, commands_array);
 
-  token = strtok(str, ":");
-  while (token != NULL) {
-    token = strtok(NULL, ":");
-    ++i;
-  }
-  return (i);
-}
-
-static char **fill_path(char **my_path, char *str) {
-  char *token = NULL;
-  size_t i = 0;
-
-  token = strtok(str, ":");
-  while (token != NULL) {
-    token = strtok(NULL, ":");
-    my_path[i] = my_strdup(token);
-    ++i;
-  }
-  return (my_path);
-}
-
-
-void check_commands(char *str, char **env) {
-  size_t len = 0;
-  char *path = get_path_exec(env);
-  char **my_path = NULL;
-
-  if (path == NULL)
+  if (commands_array == NULL)
     return;
-  len = count_pathname(path);
-  my_path = malloc(sizeof(char *) * (len + 1));
-  if (my_path == NULL)
-    return;
-  my_path = fill_path(my_path, path);
-  my_path[len] = NULL;
-  for (int i = 0; my_path[i] != NULL; ++i)
-    printf("%s\n", my_path[i]);
-  return;
+  if (path != NULL) {
+    if (exec_commands(my_env, commands_array, path) == 0)
+    free(path);
+  } else
+    display_command_not_found(commands_array[0]);
+  if (commands_array != NULL)
+    free_array(commands_array);
 }

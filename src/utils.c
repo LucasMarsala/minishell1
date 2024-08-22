@@ -1,5 +1,10 @@
 #include "my_header.h"
 
+void print_array(char **array) {
+  for (int i = 0; array[i] != NULL; ++i)
+    printf("%s\n", array[i]);
+}
+
 size_t my_strlen(const char *str) {
   size_t i = 0;
 
@@ -30,11 +35,11 @@ int my_strstr(const char *s1, const char *s2) {
   return (-1);
 }
 
-char *my_concatstr(const char *s1, const char *s2) {
+char *my_strcat(const char *s1, const char *s2) {
   char *str = NULL;
   size_t i = 0;
-  size_t len = (my_strlen(s1) + my_strlen(s1));
-  printf("JE SUIS LEN = %d", len);
+  size_t len = (my_strlen(s1) + my_strlen(s2));
+
   if (len == 0)
     return (NULL);
   str = malloc(sizeof(char) * (len + 1));

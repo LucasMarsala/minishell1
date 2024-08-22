@@ -1,11 +1,5 @@
 #include "my_header.h"
 
-void free_array(char **array) {
-  for (size_t i = 0; NULL != array[i]; ++i)
-    free(array[i]);
-  free(array);
-}
-
 static size_t get_size_env(char **env) {
   size_t i = 0;
 
