@@ -38,7 +38,7 @@ static void get_prompt(env_t *my_env) {
     display_wrong_prompt(my_env);
 }
 
-void get_shell_input(env_t *my_env, user_input_t *usr_input, char **env) {
+void get_shell_input(env_t *my_env, user_input_t *usr_input) {
   signal(SIGINT, SIG_IGN);
   while (usr_input->getline_value != EOF) {
     if (isatty(STDIN_FILENO)) {
@@ -48,7 +48,7 @@ void get_shell_input(env_t *my_env, user_input_t *usr_input, char **env) {
     usr_input->getline_value = getline(&usr_input->line, &usr_input->len, stdin);
     if (usr_input->getline_value != EOF) {
       usr_input->line[usr_input->getline_value - 1] = '\0';
-      check_commands(my_env, usr_input, env);
+      check_commands(my_env, usr_input);
     }
   }
 }
@@ -59,10 +59,10 @@ int main(int ac, char **av, char **env) {
 
   if (my_env == NULL || usr_input == NULL) {
     write(2, "Error: Could not allocate memory for structures.", 48);
-    return (-1);
+    return (84);
   }
-  initialize_shell(my_env, usr_input);
-  get_shell_input(my_env, usr_input, env);
+  initialize_shell(my_env, usr_input, env);
+  get_shell_input(my_env, usr_input);
   free_shell(my_env, usr_input);
   return (0);
 }
