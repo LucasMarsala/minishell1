@@ -8,6 +8,5 @@
 #define GREEN "\033[32;1m"
 #define RESET "\033[0m"
 #define PATH_MAX 4096
-#define _GNU_SOURCE
 
 #endif

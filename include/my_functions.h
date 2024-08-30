@@ -13,6 +13,7 @@
   char *my_strcat(const char *, const char *);
   char **str_to_word_array(char *);
   int my_strcmp(const char *, const char *);
+  user_input_t * clear_input(user_input_t *);
 
   char **copy_env(char **);
   void check_commands(env_t *, user_input_t *);

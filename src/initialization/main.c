@@ -47,7 +47,7 @@ void get_shell_input(env_t *my_env, user_input_t *usr_input) {
     }
     usr_input->getline_value = getline(&usr_input->line, &usr_input->len, stdin);
     if (usr_input->getline_value != EOF) {
-      usr_input->line[usr_input->getline_value - 1] = '\0';
+      usr_input = clear_input(usr_input);
       check_commands(my_env, usr_input);
     }
   }

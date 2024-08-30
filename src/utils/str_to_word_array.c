@@ -1,28 +1,11 @@
 #include "my_header.h"
 
-
-static char *remove_trailing_space(char *str) {
-  size_t len = strlen(str);
-
-  for (; 0 <= len && ' ' == str[len - 1]; --len)
-    str[len] = '\0';
-  str[len] = '\0';
-  return (str);
-}
-
-static int remove_space_before(char **str) {
-  for (size_t i = 0; (' ' == *str[i] || '\t' == *str[i])
-  && '\0' != *str[i]; ++(*str));
-  return (strlen(*str));
-}
-
 static size_t count_words(char *str) {
   size_t count = 0;
   size_t check = 0;
 
-  if (remove_space_before(&str) == 0)
-    return (0);
-  str = remove_trailing_space(str);
+  if (str == NULL)
+    return (-1);
   for (size_t i = 0; '\0' != str[i]; ++i) {
     if (' ' == str[i] || '\t' == str[i]) {
       if (check == 0) {
@@ -32,29 +15,92 @@ static size_t count_words(char *str) {
     } else
       check = 0;
   }
-  if (0 == count && 0 < strlen(str))
+  if (0 == count && 0 < my_strlen(str))
     return (1);
-  else if (0 < strlen(str) && 0 < count)
+  else if (0 < count && 0 < my_strlen(str))
     return (count + 1);
   return (count);
 }
 
+static size_t *count_size_words(size_t *size_words, char *str, size_t words) {
+  size_t count = 0;
+  size_t check = 0;
+  size_t line = 0;
+  size_t last_size = 0;
+
+  for (size_t i = 0; '\0' != str[i]; ++i) {
+    if (' ' != str[i] && '\t' != str[i]) {
+      ++count;
+      check = 1;
+    } else {
+      if (check == 1 && words >= line) {
+        size_words[line] = count - last_size;
+        last_size = count;
+        ++line;
+        check = 0;
+      }
+    }
+  }
+  size_words[line] = count - last_size;
+  return (size_words);
+}
+
+static char **fill_array(char **array, char *str) {
+  size_t check = 0;
+  size_t caracter = 0;
+  size_t line = 0;
+
+  for (size_t i = 0; '\0' != str[i]; ++i) {
+    if (' ' != str[i] && '\t' != str[i]) {
+      array[line][caracter] = str[i];
+      ++caracter;
+      check = 1;
+    } else {
+      if (check == 1) {
+        ++line;
+        check = 0;
+        caracter = 0;
+      }
+    }
+  }
+  return (array);
+}
+
+static char **initialize_array(char **array, char *str, size_t words) {
+  size_t *size_words = malloc(sizeof(size_t) * (words + 1));
+
+  if (size_words == NULL)
+    return (NULL);
+  size_words[words] = -1;
+  size_words = count_size_words(size_words, str, words);
+  array = malloc(sizeof(char *) * (words + 1));
+  if (array == NULL) {
+    free(size_words);
+    return (NULL);
+  }
+  array[words] = NULL;
+  for (size_t i = 0; -1 != size_words[i]; ++i) {
+    array[i] = malloc(sizeof(char) * (size_words[i] + 1));
+    if (array[i] == NULL) {
+      free(size_words);
+      free(array);
+      return (NULL);
+    }
+    array[i][size_words[i]] = '\0';
+  }
+  free(size_words);
+  return (array);
+}
+
 char **str_to_word_array(char *str) {
-  char *temp = str;
   size_t words = count_words(str);
   char **array = NULL;
-  char *token = NULL;
 
-  if (words == 0)
+  if (words == 0 || words == -1)
     return (NULL);
-  array = malloc(sizeof(char *) * (words + 1));
+  array = initialize_array(array, str, words);
   if (array == NULL)
     return (NULL);
-  array[words] = NULL;
-  token = strtok(str, " ");
-  for (size_t i = 0; NULL != token; ++i) {
-    array[i] = my_strdup(token);
-    token = strtok(NULL, " ");
-  }
+  array = fill_array(array, str);
   return (array);
 }

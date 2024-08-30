@@ -51,7 +51,6 @@ static char *check_commands_with_env(env_t *my_env, char **commands) {
 }
 
 static int check_bultins(env_t *my_env, char **commands_array) {
-
   if (my_strcmp("env", commands_array[0]) == 0) {
     exec_env_command(my_env);
     return (0);

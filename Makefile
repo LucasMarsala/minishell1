@@ -20,6 +20,7 @@ SRC_UTILS = my_strlen.c	\
 						my_strdup.c	\
 						print_array.c	\
 						str_to_word_array.c	\
+						clear_string.c	\
 
 #################################DESTROY########################################
 

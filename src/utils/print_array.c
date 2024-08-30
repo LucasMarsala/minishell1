@@ -2,5 +2,5 @@
 
 void print_array(char **array) {
   for (int i = 0; array[i] != NULL; ++i)
-    printf("%s\n", array[i]);
+    printf("STR[%d] = %s\n", i, array[i]);
 }
